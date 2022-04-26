@@ -14,10 +14,10 @@ contract TokenFarm is Ownable {
     mapping(address => mapping(address => uint256)) public stakingBalance;
     mapping(address => uint256) public uniqueTokensStaked;
     mapping(address => address) public tokenPriceFeedMapping;
-    IERC20 public dappToken;
+    IERC20 public paulToken;
 
-    constructor(address _dappTokenAddress) public {
-        dappToken = IERC20(_dappTokenAddress);
+    constructor(address _paulTokenAddress) public {
+        paulToken = IERC20(_paulTokenAddress);
     }
 
     function setPriceFeedContract(address _token, address _priceFeed)
@@ -35,7 +35,7 @@ contract TokenFarm is Ownable {
         ) {
             address recipient = stakers[stakersIndex];
             uint256 userTotalValue = getUserTotalValue(recipient);
-            dappToken.transfer(recipient, userTotalValue);
+            paulToken.transfer(recipient, userTotalValue);
         }
     }
 
@@ -52,11 +52,14 @@ contract TokenFarm is Ownable {
         }
     }
 
-    function unstakeTokens(address _token) public {
+    function unstakeTokens(address _token, uint256 _amount) public {
         uint256 balance = stakingBalance[_token][msg.sender];
         require(balance > 0, "Staking Balance cannot be zero!");
-        IERC20(_token).transfer(msg.sender, balance);
-        stakingBalance[_token][msg.sender] = 0;
+        require(_amount <= balance, "Balance exceeded");
+        IERC20(_token).transfer(msg.sender, _amount);
+        stakingBalance[_token][msg.sender] = (stakingBalance[_token][
+            msg.sender
+        ] - _amount);
         uniqueTokensStaked[msg.sender] = uniqueTokensStaked[msg.sender] - 1;
     }
 
@@ -83,10 +86,10 @@ contract TokenFarm is Ownable {
         view
         returns (uint256)
     {
-        // Value in dollars of the specific coin staked
         if (uniqueTokensStaked[_user] <= 0) {
             return 0;
         }
+        // Value in dollars of the specific coin staked
         // get price of token * stakingBalance of token of the user
         (uint256 price, uint256 decimals) = getTokenValue(_token);
         return ((stakingBalance[_token][_user] * price) / (10**decimals));

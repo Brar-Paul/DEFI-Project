@@ -8,6 +8,8 @@ from brownie import (
     web3,
     MockDAI,
     MockWETH,
+    MockAUD,
+    MockUNI,
 )
 import time
 
@@ -23,8 +25,12 @@ BLOCK_CONFIRMATIONS_FOR_VERIFICATION = 6
 contract_to_mock = {
     "eth_usd_price_feed": MockV3Aggregator,
     "dai_usd_price_feed": MockV3Aggregator,
+    "uni_usd_price_feed": MockV3Aggregator,
+    "aud_usd_price_feed": MockV3Aggregator,
     "fau_token": MockDAI,
     "weth_token": MockWETH,
+    "uni_token": MockUNI,
+    "aud_token": MockAUD,
 }
 
 DECIMALS = 18
@@ -113,6 +119,12 @@ def deploy_mocks(decimals=DECIMALS, initial_value=INITIAL_VALUE):
     print("Deploying Mock WETH...")
     weth_token = MockWETH.deploy({"from": account})
     print(f"Deployed to {weth_token.address}")
+    print("Deploying Mock UNI...")
+    uni_token = MockUNI.deploy({"from": account})
+    print(f"Deployed to {uni_token.address}")
+    print("Deploying Mock AUD...")
+    aud_token = MockAUD.deploy({"from": account})
+    print(f"Deployed to {aud_token.address}")
 
 
 def listen_for_event(brownie_contract, event, timeout=200, poll_interval=2):
