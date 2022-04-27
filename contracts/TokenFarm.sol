@@ -57,10 +57,10 @@ contract TokenFarm is Ownable {
         require(balance > 0, "Staking Balance cannot be zero!");
         require(_amount <= balance, "Balance exceeded");
         IERC20(_token).transfer(msg.sender, _amount);
-        stakingBalance[_token][msg.sender] = (stakingBalance[_token][
-            msg.sender
-        ] - _amount);
-        uniqueTokensStaked[msg.sender] = uniqueTokensStaked[msg.sender] - 1;
+        stakingBalance[_token][msg.sender] = balance - _amount;
+        if (stakingBalance[_token][msg.sender] == 0) {
+            uniqueTokensStaked[msg.sender] = uniqueTokensStaked[msg.sender] - 1;
+        }
     }
 
     function getUserTotalValue(address _user) public view returns (uint256) {
